@@ -1,0 +1,42 @@
+<.header>
+  Listing Splits
+  <:actions>
+    <.link patch={~p"/splits/new"}>
+      <.button>New Split</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="splits"
+  rows={@streams.splits}
+  row_click={fn {_id, split} -> JS.navigate(~p"/splits/#{split}") end}
+>
+  <:col :let={{_id, split}} label="Description"><%= split.description %></:col>
+  <:col :let={{_id, split}} label="Amount"><%= split.amount %></:col>
+  <:action :let={{_id, split}}>
+    <div class="sr-only">
+      <.link navigate={~p"/splits/#{split}"}>Show</.link>
+    </div>
+    <.link patch={~p"/splits/#{split}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, split}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: split.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="split-modal" show on_cancel={JS.patch(~p"/splits")}>
+  <.live_component
+    module={BeansWeb.SplitLive.FormComponent}
+    id={@split.id || :new}
+    title={@page_title}
+    action={@live_action}
+    split={@split}
+    patch={~p"/splits"}
+  />
+</.modal>

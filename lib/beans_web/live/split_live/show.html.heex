@@ -1,0 +1,27 @@
+<.header>
+  Split <%= @split.id %>
+  <:subtitle>This is a split record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/splits/#{@split}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit split</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Description"><%= @split.description %></:item>
+  <:item title="Amount"><%= @split.amount %></:item>
+</.list>
+
+<.back navigate={~p"/splits"}>Back to splits</.back>
+
+<.modal :if={@live_action == :edit} id="split-modal" show on_cancel={JS.patch(~p"/splits/#{@split}")}>
+  <.live_component
+    module={BeansWeb.SplitLive.FormComponent}
+    id={@split.id}
+    title={@page_title}
+    action={@live_action}
+    split={@split}
+    patch={~p"/splits/#{@split}"}
+  />
+</.modal>
