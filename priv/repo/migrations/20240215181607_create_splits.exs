@@ -4,7 +4,7 @@ defmodule Beans.Repo.Migrations.CreateSplits do
   def change do
     create table(:splits) do
       add :description, :text
-      add :amount, :decimal
+      add :amount, :decimal, precision: 20, scale: 2
 
       add :transaction_id, references(:transactions)
       add :category_id, references(:categories)

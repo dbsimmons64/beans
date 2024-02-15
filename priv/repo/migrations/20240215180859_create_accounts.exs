@@ -4,7 +4,7 @@ defmodule Beans.Repo.Migrations.CreateAccounts do
   def change do
     create table(:accounts) do
       add :name, :text
-      add :balance, :decimal
+      add :balance, :decimal, precision: 20, scale: 2
 
       timestamps()
     end
