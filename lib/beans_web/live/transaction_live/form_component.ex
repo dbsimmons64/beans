@@ -22,6 +22,27 @@ defmodule BeansWeb.TransactionLive.FormComponent do
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:date]} type="date" label="Date" />
         <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+        <.input field={@form[:account_id]} type="hidden" value={@account.id} />
+        <.inputs_for :let={f_nested} field={@form[:splits]}>
+          <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
+          <.input type="text" field={f_nested[:description]} placeholder="description" />
+
+          <label>
+            <input
+              type="checkbox"
+              name="transaction[notifications_delete][]"
+              value={f_nested.index}
+              class="hidden"
+            />
+            <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
+          </label>
+        </.inputs_for>
+
+        <label class="block cursor-pointer">
+          <input type="checkbox" name="transaction[notifications_order][]" class="hidden" />
+          <.icon name="hero-plus-circle" /> add more
+        </label>
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Transaction</.button>
         </:actions>

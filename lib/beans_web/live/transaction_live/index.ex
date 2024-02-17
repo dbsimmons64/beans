@@ -1,12 +1,14 @@
 defmodule BeansWeb.TransactionLive.Index do
   use BeansWeb, :live_view
 
+  alias Beans.Accounts
   alias Beans.Transactions
   alias Beans.Transactions.Transaction
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, stream(socket, :transactions, Transactions.list_transactions())}
+  def mount(%{"account_id" => account_id} = params, _session, socket) do
+    dbg(params)
+    {:ok, stream(socket, :transactions, Transactions.list_transactions(account_id))}
   end
 
   @impl true
@@ -14,21 +16,24 @@ defmodule BeansWeb.TransactionLive.Index do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :edit, %{"id" => id}) do
+  defp apply_action(socket, :edit, %{"id" => id, "account_id" => account_id}) do
     socket
     |> assign(:page_title, "Edit Transaction")
+    |> assign(:account, Accounts.get_account!(account_id))
     |> assign(:transaction, Transactions.get_transaction!(id))
   end
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket, :new, %{"account_id" => account_id}) do
     socket
     |> assign(:page_title, "New Transaction")
+    |> assign(:account, Accounts.get_account!(account_id))
     |> assign(:transaction, %Transaction{})
   end
 
-  defp apply_action(socket, :index, _params) do
+  defp apply_action(socket, :index, %{"account_id" => account_id} = _params) do
     socket
     |> assign(:page_title, "Listing Transactions")
+    |> assign(:account, Accounts.get_account!(account_id))
     |> assign(:transaction, nil)
   end
 

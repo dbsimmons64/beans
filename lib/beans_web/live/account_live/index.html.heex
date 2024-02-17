@@ -10,7 +10,7 @@
 <.table
   id="accounts"
   rows={@streams.accounts}
-  row_click={fn {_id, account} -> JS.navigate(~p"/accounts/#{account}") end}
+  row_click={fn {_id, account} -> JS.navigate(~p"/accounts/#{account}/transactions") end}
 >
   <:col :let={{_id, account}} label="Name"><%= account.name %></:col>
   <:col :let={{_id, account}} label="Balance"><%= account.balance %></:col>
@@ -30,7 +30,12 @@
   </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="account-modal" show on_cancel={JS.patch(~p"/accounts")}>
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="account-modal"
+  show
+  on_cancel={JS.patch(~p"/accounts")}
+>
   <.live_component
     module={BeansWeb.AccountLive.FormComponent}
     id={@account.id || :new}

@@ -76,12 +76,12 @@ defmodule BeansWeb.Router do
       live("/accounts/:id", AccountLive.Show, :show)
       live("/accounts/:id/show/edit", AccountLive.Show, :edit)
 
-      live("/transactions", TransactionLive.Index, :index)
-      live("/transactions/new", TransactionLive.Index, :new)
-      live("/transactions/:id/edit", TransactionLive.Index, :edit)
+      live("/accounts/:account_id/transactions", TransactionLive.Index, :index)
+      live("/accounts/:account_id/transactions/new", TransactionLive.Index, :new)
+      live("/accounts/:account_id/transactions/:id/edit", TransactionLive.Index, :edit)
 
-      live("/transactions/:id", TransactionLive.Show, :show)
-      live("/transactions/:id/show/edit", TransactionLive.Show, :edit)
+      live("/accounts/:account_id/transactions/:id", TransactionLive.Show, :show)
+      live("/accounts/:account_id/transactions/:id/show/edit", TransactionLive.Show, :edit)
 
       live("/splits", SplitLive.Index, :index)
       live("/splits/new", SplitLive.Index, :new)

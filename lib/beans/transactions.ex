@@ -4,6 +4,7 @@ defmodule Beans.Transactions do
   """
 
   import Ecto.Query, warn: false
+  alias Beans.Transactions.Transaction
   alias Beans.Repo
 
   alias Beans.Transactions.Transaction
@@ -17,8 +18,13 @@ defmodule Beans.Transactions do
       [%Transaction{}, ...]
 
   """
-  def list_transactions do
-    Repo.all(Transaction)
+  def list_transactions(account_id) do
+    query =
+      from t in Transaction,
+        where: t.account_id == ^account_id,
+        select: t
+
+    Repo.all(query)
   end
 
   @doc """
@@ -35,7 +41,7 @@ defmodule Beans.Transactions do
       ** (Ecto.NoResultsError)
 
   """
-  def get_transaction!(id), do: Repo.get!(Transaction, id)
+  def get_transaction!(id), do: Repo.get!(Transaction, id) |> Repo.preload([:splits])
 
   @doc """
   Creates a transaction.

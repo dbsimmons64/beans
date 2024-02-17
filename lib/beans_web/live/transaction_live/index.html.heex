@@ -1,7 +1,12 @@
 <.header>
-  Listing Transactions
+  <%= @account.name %>
+  <:subtitle>Balance: <%= @account.balance %></:subtitle>
+</.header>
+
+<.header>
+  Transactions
   <:actions>
-    <.link patch={~p"/transactions/new"}>
+    <.link patch={~p"/accounts/#{@account}/transactions/new"}>
       <.button>New Transaction</.button>
     </.link>
   </:actions>
@@ -10,16 +15,20 @@
 <.table
   id="transactions"
   rows={@streams.transactions}
-  row_click={fn {_id, transaction} -> JS.navigate(~p"/transactions/#{transaction}") end}
+  row_click={
+    fn {_id, transaction} ->
+      JS.navigate(~p"/accounts/#{@account}/transactions/#{transaction}")
+    end
+  }
 >
   <:col :let={{_id, transaction}} label="Name"><%= transaction.name %></:col>
   <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
   <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
   <:action :let={{_id, transaction}}>
     <div class="sr-only">
-      <.link navigate={~p"/transactions/#{transaction}"}>Show</.link>
+      <.link navigate={~p"/accounts/#{@account}/transactions/#{transaction}"}>Show</.link>
     </div>
-    <.link patch={~p"/transactions/#{transaction}/edit"}>Edit</.link>
+    <.link patch={~p"/accounts/#{@account}/transactions/#{transaction}/edit"}>Edit</.link>
   </:action>
   <:action :let={{id, transaction}}>
     <.link
@@ -31,13 +40,21 @@
   </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="transaction-modal" show on_cancel={JS.patch(~p"/transactions")}>
+<.back navigate={~p"/accounts"}>Back to accounts</.back>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="transaction-modal"
+  show
+  on_cancel={JS.patch(~p"/accounts/#{@account}/transactions")}
+>
   <.live_component
     module={BeansWeb.TransactionLive.FormComponent}
     id={@transaction.id || :new}
     title={@page_title}
     action={@live_action}
+    account={@account}
     transaction={@transaction}
-    patch={~p"/transactions"}
+    patch={~p"/accounts/#{@account}/transactions"}
   />
 </.modal>
