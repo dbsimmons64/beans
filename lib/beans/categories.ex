@@ -22,6 +22,14 @@ defmodule Beans.Categories do
   end
 
   @doc """
+  Obtain a list of categories, the returne
+  result is suitable for a html select statement
+  """
+  def select_categories do
+    from(c in Category, select: {c.name, c.id}) |> Repo.all()
+  end
+
+  @doc """
   Gets a single category.
 
   Raises `Ecto.NoResultsError` if the Category does not exist.

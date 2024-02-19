@@ -22,7 +22,8 @@ defmodule Beans.Transactions do
     query =
       from t in Transaction,
         where: t.account_id == ^account_id,
-        select: t
+        select: t,
+        preload: [:category]
 
     Repo.all(query)
   end
@@ -41,7 +42,8 @@ defmodule Beans.Transactions do
       ** (Ecto.NoResultsError)
 
   """
-  def get_transaction!(id), do: Repo.get!(Transaction, id) |> Repo.preload([:splits])
+  def get_transaction!(id),
+    do: Repo.get!(Transaction, id) |> Repo.preload([:splits, :category]) |> dbg()
 
   @doc """
   Creates a transaction.
@@ -59,6 +61,7 @@ defmodule Beans.Transactions do
     %Transaction{}
     |> Transaction.changeset(attrs)
     |> Repo.insert()
+    |> Beans.Helpers.preload(:category)
   end
 
   @doc """
@@ -77,6 +80,7 @@ defmodule Beans.Transactions do
     transaction
     |> Transaction.changeset(attrs)
     |> Repo.update()
+    |> Beans.Helpers.preload(:category)
   end
 
   @doc """

@@ -19,7 +19,8 @@ defmodule BeansWeb.CategoryLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Name" />
+        <.input field={@form[:name]} type="text" label="Name" class="w-1/2" />
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Category</.button>
         </:actions>

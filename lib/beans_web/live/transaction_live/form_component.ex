@@ -1,6 +1,7 @@
 defmodule BeansWeb.TransactionLive.FormComponent do
   use BeansWeb, :live_component
 
+  alias Beans.Categories
   alias Beans.Transactions
 
   @impl true
@@ -19,23 +20,38 @@ defmodule BeansWeb.TransactionLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Name" />
-        <.input field={@form[:date]} type="date" label="Date" />
-        <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+        <div class="flex flex-row space-x-4 justify-between">
+          <div class="basis-2/6">
+            <.input field={@form[:name]} type="text" label="Name" />
+          </div>
+          <.input field={@form[:date]} type="date" label="Date" />
+          <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+          <div class="basis-2/6">
+            <.input field={@form[:category_id]} type="select" options={@categories} label="Category" />
+          </div>
+        </div>
         <.input field={@form[:account_id]} type="hidden" value={@account.id} />
-        <.inputs_for :let={f_nested} field={@form[:splits]}>
-          <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
-          <.input type="text" field={f_nested[:description]} placeholder="description" />
 
-          <label>
-            <input
-              type="checkbox"
-              name="transaction[notifications_delete][]"
-              value={f_nested.index}
-              class="hidden"
-            />
-            <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
-          </label>
+        <.header>
+          Splits
+        </.header>
+        <.inputs_for :let={f_nested} field={@form[:splits]}>
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
+              <.input type="text" field={f_nested[:description]} placeholder="description" />
+            </div>
+            <.input type="number" field={f_nested[:amount]} placeholder="amount" />
+            <label>
+              <input
+                type="checkbox"
+                name="transaction[notifications_delete][]"
+                value={f_nested.index}
+                class="hidden"
+              />
+              <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
+            </label>
+          </div>
         </.inputs_for>
 
         <label class="block cursor-pointer">
@@ -58,6 +74,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:categories, Categories.select_categories())
      |> assign_form(changeset)}
   end
 
