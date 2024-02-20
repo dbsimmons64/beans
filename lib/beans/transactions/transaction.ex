@@ -9,7 +9,7 @@ defmodule Beans.Transactions.Transaction do
 
     belongs_to(:account, Beans.Accounts.Account)
     belongs_to(:category, Beans.Categories.Category)
-    has_many(:splits, Beans.Splits.Split)
+    has_many(:splits, Beans.Splits.Split, on_delete: :delete_all)
 
     timestamps()
   end

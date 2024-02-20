@@ -4,6 +4,7 @@ defmodule Beans.Transactions do
   """
 
   import Ecto.Query, warn: false
+  alias Beans.Accounts.Account
   alias Beans.Transactions.Transaction
   alias Beans.Repo
 
@@ -43,7 +44,23 @@ defmodule Beans.Transactions do
 
   """
   def get_transaction!(id),
-    do: Repo.get!(Transaction, id) |> Repo.preload([:splits, :category]) |> dbg()
+    do: Repo.get!(Transaction, id) |> Repo.preload([:splits, :category])
+
+  @doc """
+  Create a transaction and update the associated account balance.
+  """
+  def create_transaction(account, attrs) do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- create_transaction(attrs),
+           {:ok, _account} <-
+             Beans.Accounts.update_balance(
+               account,
+               Decimal.mult(transaction.amount, Decimal.new(-1))
+             ) do
+        {:ok, transaction}
+      end
+    end)
+  end
 
   @doc """
   Creates a transaction.
@@ -61,7 +78,20 @@ defmodule Beans.Transactions do
     %Transaction{}
     |> Transaction.changeset(attrs)
     |> Repo.insert()
-    |> Beans.Helpers.preload(:category)
+    |> Beans.Helpers.preload([:splits, :category])
+  end
+
+  def update_transaction(%Transaction{} = transaction, %Account{} = account, attrs) do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- update_transaction(transaction, attrs),
+           {:ok, _account} <-
+             Beans.Accounts.update_balance(
+               account,
+               Decimal.mult(transaction.amount, Decimal.new(-1))
+             ) do
+        {:ok, transaction}
+      end
+    end)
   end
 
   @doc """
@@ -81,6 +111,19 @@ defmodule Beans.Transactions do
     |> Transaction.changeset(attrs)
     |> Repo.update()
     |> Beans.Helpers.preload(:category)
+  end
+
+  def delete_transaction(%Transaction{} = transaction, %Account{} = account) do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- delete_transaction(transaction),
+           {:ok, _account} <-
+             Beans.Accounts.update_balance(
+               account,
+               transaction.amount
+             ) do
+        {:ok, transaction}
+      end
+    end)
   end
 
   @doc """

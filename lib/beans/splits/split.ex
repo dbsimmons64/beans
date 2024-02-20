@@ -5,7 +5,6 @@ defmodule Beans.Splits.Split do
   schema "splits" do
     field :description, :string
     field :amount, :decimal
-
     belongs_to :transaction, Beans.Transactions.Transaction
     belongs_to :category, Beans.Categories.Category
 

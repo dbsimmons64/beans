@@ -1,4 +1,5 @@
 defmodule BeansWeb.TransactionLive.Index do
+  alias Beans.Accounts.Account
   use BeansWeb, :live_view
 
   alias Beans.Accounts
@@ -6,8 +7,7 @@ defmodule BeansWeb.TransactionLive.Index do
   alias Beans.Transactions.Transaction
 
   @impl true
-  def mount(%{"account_id" => account_id} = params, _session, socket) do
-    dbg(params)
+  def mount(%{"account_id" => account_id} = _params, _session, socket) do
     {:ok, stream(socket, :transactions, Transactions.list_transactions(account_id))}
   end
 
@@ -45,8 +45,11 @@ defmodule BeansWeb.TransactionLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     transaction = Transactions.get_transaction!(id)
-    {:ok, _} = Transactions.delete_transaction(transaction)
+    account = Accounts.get_account!(transaction.account_id)
 
+    {:ok, _} = Transactions.delete_transaction(transaction, account)
+
+    socket = assign(socket, :account, Accounts.get_account!(account.id))
     {:noreply, stream_delete(socket, :transactions, transaction)}
   end
 end

@@ -71,6 +71,15 @@ defmodule Beans.Accounts do
 
   """
   def update_account(%Account{} = account, attrs) do
+    account |> Account.changeset(attrs) |> Repo.update()
+  end
+
+  @doc """
+  Update the balance on the given account.
+  """
+  def update_balance(%Account{} = account, amount) do
+    attrs = %{balance: Decimal.add(account.balance, amount)}
+
     account
     |> Account.changeset(attrs)
     |> Repo.update()

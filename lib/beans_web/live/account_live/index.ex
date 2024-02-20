@@ -27,8 +27,6 @@ defmodule BeansWeb.AccountLive.Index do
   end
 
   defp apply_action(socket, :index, params) do
-    dbg(params)
-
     socket
     |> assign(:page_title, "Listing Accounts")
     |> assign(:account, nil)

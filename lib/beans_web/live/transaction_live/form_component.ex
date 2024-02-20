@@ -41,7 +41,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
               <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
               <.input type="text" field={f_nested[:description]} placeholder="description" />
             </div>
-            <.input type="number" field={f_nested[:amount]} placeholder="amount" />
+            <.input type="number" field={f_nested[:amount]} placeholder="amount" step="any" />
             <label>
               <input
                 type="checkbox"
@@ -93,7 +93,11 @@ defmodule BeansWeb.TransactionLive.FormComponent do
   end
 
   defp save_transaction(socket, :edit, transaction_params) do
-    case Transactions.update_transaction(socket.assigns.transaction, transaction_params) do
+    case Transactions.update_transaction(
+           socket.assigns.transaction,
+           socket.assigns.account,
+           transaction_params
+         ) do
       {:ok, transaction} ->
         notify_parent({:saved, transaction})
 
@@ -108,7 +112,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
   end
 
   defp save_transaction(socket, :new, transaction_params) do
-    case Transactions.create_transaction(transaction_params) do
+    case Transactions.create_transaction(socket.assigns.account, transaction_params) do
       {:ok, transaction} ->
         notify_parent({:saved, transaction})
 
