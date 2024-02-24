@@ -1,5 +1,4 @@
 defmodule BeansWeb.TransactionLive.Index do
-  alias Beans.Accounts.Account
   use BeansWeb, :live_view
 
   alias Beans.Accounts

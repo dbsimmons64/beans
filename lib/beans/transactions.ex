@@ -82,12 +82,14 @@ defmodule Beans.Transactions do
   end
 
   def update_transaction(%Transaction{} = transaction, %Account{} = account, attrs) do
+    original_amount = transaction.amount
     Beans.Helpers.transact(fn ->
       with {:ok, transaction} <- update_transaction(transaction, attrs),
            {:ok, _account} <-
-             Beans.Accounts.update_balance(
+             Beans.Accounts.possibly_update_balance(
                account,
-               Decimal.mult(transaction.amount, Decimal.new(-1))
+              original_amount,
+            transaction.amount
              ) do
         {:ok, transaction}
       end

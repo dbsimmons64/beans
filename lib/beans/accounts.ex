@@ -74,6 +74,16 @@ defmodule Beans.Accounts do
     account |> Account.changeset(attrs) |> Repo.update()
   end
 
+  def possibly_update_balance(%Account{} = account, amount, original_amount) do
+    difference = Decimal.sub(original_amount, amount)
+
+    if Decimal.compare(difference, Decimal.new(0)) == :eq do
+      {:ok, account}
+    else
+      update_balance(account, Decimal.mult(difference, Decimal.new(-1)))
+    end
+  end
+
   @doc """
   Update the balance on the given account.
   """

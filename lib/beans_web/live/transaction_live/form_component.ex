@@ -99,8 +99,6 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
-    dbg(transaction_params)
-
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)
@@ -119,8 +117,6 @@ defmodule BeansWeb.TransactionLive.FormComponent do
   end
 
   defp save_transaction(socket, :edit, transaction_params) do
-    dbg(transaction_params)
-
     case Transactions.update_transaction(
            socket.assigns.transaction,
            socket.assigns.account,
