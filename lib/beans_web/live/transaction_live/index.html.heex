@@ -24,7 +24,10 @@
   <:col :let={{_id, transaction}} label="Name"><%= transaction.name %></:col>
   <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
   <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
-  <:col :let={{_id, transaction}} label="Category"><%= transaction.category.name %></:col>
+  <:col :let={{_id, transaction}} label="Category">
+    <div :if={transaction.split == false}><%= transaction.category.name %></div>
+    <div :if={transaction.split == true}>Split</div>
+  </:col>
   <:action :let={{_id, transaction}}>
     <div class="sr-only">
       <.link navigate={~p"/accounts/#{@account}/transactions/#{transaction}"}>Show</.link>

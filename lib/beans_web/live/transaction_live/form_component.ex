@@ -24,41 +24,59 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           <div class="basis-2/6">
             <.input field={@form[:name]} type="text" label="Name" />
           </div>
-          <.input field={@form[:date]} type="date" label="Date" />
-          <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+          <div class="basis-1/6">
+            <.input field={@form[:date]} type="date" label="Date" />
+          </div>
+
+          <div class="basis-1/6">
+            <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+          </div>
           <div class="basis-2/6">
-            <.input field={@form[:category_id]} type="select" options={@categories} label="Category" />
+            <.input
+              :if={@split in [false, nil]}
+              field={@form[:category_id]}
+              type="select"
+              options={@categories}
+              label="Category"
+            />
           </div>
         </div>
+        <.input field={@form[:split]} type="checkbox" label="Split" />
         <.input field={@form[:account_id]} type="hidden" value={@account.id} />
+        <div :if={@split == true}>
+          <.header>
+            Splits
+          </.header>
+          <.inputs_for :let={f_nested} field={@form[:splits]}>
+            <div class="flex space-x-4">
+              <div class="w-1/2">
+                <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
+                <.input type="text" field={f_nested[:description]} placeholder="description" />
+              </div>
+              <.input type="number" field={f_nested[:amount]} placeholder="amount" step="any" />
 
-        <.header>
-          Splits
-        </.header>
-        <.inputs_for :let={f_nested} field={@form[:splits]}>
-          <div class="flex space-x-4">
-            <div class="w-1/2">
-              <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
-              <.input type="text" field={f_nested[:description]} placeholder="description" />
+              <div class="w-1/2">
+                <.input field={f_nested[:category_id]} type="select" options={@categories} />
+              </div>
+              <label>
+                <input
+                  type="checkbox"
+                  name="transaction[notifications_delete][]"
+                  value={f_nested.index}
+                  class="hidden"
+                />
+                <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
+              </label>
             </div>
-            <.input type="number" field={f_nested[:amount]} placeholder="amount" step="any" />
-            <label>
-              <input
-                type="checkbox"
-                name="transaction[notifications_delete][]"
-                value={f_nested.index}
-                class="hidden"
-              />
-              <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
-            </label>
-          </div>
-        </.inputs_for>
+          </.inputs_for>
 
-        <label class="block cursor-pointer">
-          <input type="checkbox" name="transaction[notifications_order][]" class="hidden" />
-          <.icon name="hero-plus-circle" /> add more
-        </label>
+          <input type="hidden" name="transaction[notifications_delete][]" />
 
+          <label class="block cursor-pointer">
+            <input type="checkbox" name="transaction[notifications_order][]" class="hidden" />
+            <.icon name="hero-plus-circle" /> add more
+          </label>
+        </div>
         <:actions>
           <.button phx-disable-with="Saving...">Save Transaction</.button>
         </:actions>
@@ -75,17 +93,25 @@ defmodule BeansWeb.TransactionLive.FormComponent do
      socket
      |> assign(assigns)
      |> assign(:categories, Categories.select_categories())
-     |> assign_form(changeset)}
+     |> assign_form(changeset)
+     |> assign(:split, Ecto.Changeset.get_field(changeset, :split))}
   end
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
+    dbg(transaction_params)
+
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign_form(socket, changeset)}
+    socket =
+      socket
+      |> assign_form(changeset)
+      |> assign(:split, Ecto.Changeset.get_field(changeset, :split))
+
+    {:noreply, socket}
   end
 
   def handle_event("save", %{"transaction" => transaction_params}, socket) do
@@ -93,6 +119,8 @@ defmodule BeansWeb.TransactionLive.FormComponent do
   end
 
   defp save_transaction(socket, :edit, transaction_params) do
+    dbg(transaction_params)
+
     case Transactions.update_transaction(
            socket.assigns.transaction,
            socket.assigns.account,

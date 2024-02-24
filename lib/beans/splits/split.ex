@@ -14,7 +14,7 @@ defmodule Beans.Splits.Split do
   @doc false
   def changeset(split, attrs) do
     split
-    |> cast(attrs, [:description, :amount])
-    |> validate_required([:description, :amount])
+    |> cast(attrs, [:description, :amount, :category_id])
+    |> validate_required([:description, :amount, :category_id])
   end
 end

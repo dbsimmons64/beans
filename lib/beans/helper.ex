@@ -7,7 +7,7 @@ defmodule Beans.Helpers do
     functions.
   """
   def preload({:ok, entity}, preloads) do
-    {:ok, Repo.preload(entity, preloads)}
+    {:ok, Repo.preload(entity, preloads, force: true)}
   end
 
   def preload({:error, error}, _preloads) do

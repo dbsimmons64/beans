@@ -6,10 +6,11 @@ defmodule Beans.Transactions.Transaction do
     field(:name, :string)
     field(:date, :date)
     field(:amount, :decimal)
+    field :split, :boolean
 
     belongs_to(:account, Beans.Accounts.Account)
     belongs_to(:category, Beans.Categories.Category)
-    has_many(:splits, Beans.Splits.Split, on_delete: :delete_all)
+    has_many(:splits, Beans.Splits.Split, on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
   end
@@ -17,8 +18,8 @@ defmodule Beans.Transactions.Transaction do
   @doc false
   def changeset(transaction, attrs) do
     transaction
-    |> cast(attrs, [:name, :date, :amount, :account_id, :category_id])
-    |> validate_required([:name, :date, :amount, :account_id, :category_id])
+    |> cast(attrs, [:name, :date, :amount, :account_id, :category_id, :split])
+    |> validate_required([:name, :date, :amount, :account_id, :split])
     |> cast_assoc(:splits,
       with: &Beans.Splits.Split.changeset/2,
       sort_param: :notifications_order,
