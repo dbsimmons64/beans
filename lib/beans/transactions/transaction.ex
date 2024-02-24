@@ -20,12 +20,23 @@ defmodule Beans.Transactions.Transaction do
     transaction
     |> cast(attrs, [:name, :date, :amount, :account_id, :category_id, :split])
     |> validate_required([:name, :date, :amount, :account_id, :split])
+    |> possibly_save_splits()
     |> cast_assoc(:splits,
       with: &Beans.Splits.Split.changeset/2,
       sort_param: :notifications_order,
       drop_param: :notifications_delete
     )
     |> validate_total()
+  end
+
+  defp possibly_save_splits(changeset) do
+    split = fetch_field!(changeset, :split)
+
+    if split == true do
+      changeset
+    else
+      Ecto.Changeset.change(changeset, %{splits: []})
+    end
   end
 
   defp validate_total(changeset) do
