@@ -21,29 +21,29 @@ defmodule BeansWeb.TransactionLive.FormComponent do
         phx-submit="save"
       >
         <div class="flex flex-row space-x-4 justify-between">
-          <div class="basis-2/6">
-            <.input field={@form[:name]} type="text" label="Name" />
-          </div>
-          <div class="basis-1/6">
-            <.input field={@form[:date]} type="date" label="Date" />
-          </div>
+          <.input field={@form[:name]} type="text" label="Name" />
+          <.input field={@form[:date]} type="date" label="Date" />
+          <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+          <.input
+            :if={@type == :standard}
+            field={@form[:category_id]}
+            type="select"
+            options={@categories}
+            label="Category"
+            class="mx-4"
+          />
 
-          <div class="basis-1/6">
-            <.input field={@form[:amount]} type="number" label="Amount" step="any" />
-          </div>
-          <div class="basis-2/6">
-            <.input
-              :if={@split in [false, nil]}
-              field={@form[:category_id]}
-              type="select"
-              options={@categories}
-              label="Category"
-            />
-          </div>
+          <.input
+            field={@form[:type]}
+            type="select"
+            options={[{"Standard", :standard}, {"Split", :split}, {"Transfer", :transfer}]}
+            label="Category"
+            class="mx-4"
+          />
         </div>
-        <.input field={@form[:split]} type="checkbox" label="Split" />
+
         <.input field={@form[:account_id]} type="hidden" value={@account.id} />
-        <div :if={@split == true}>
+        <div :if={@type == :split}>
           <.header>
             Splits
           </.header>
@@ -94,11 +94,13 @@ defmodule BeansWeb.TransactionLive.FormComponent do
      |> assign(assigns)
      |> assign(:categories, Categories.select_categories())
      |> assign_form(changeset)
-     |> assign(:split, Ecto.Changeset.get_field(changeset, :split))}
+     |> assign(:type, Ecto.Changeset.get_field(changeset, :type))}
   end
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
+    dbg(transaction_params)
+
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)
@@ -107,7 +109,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
     socket =
       socket
       |> assign_form(changeset)
-      |> assign(:split, Ecto.Changeset.get_field(changeset, :split))
+      |> assign(:type, Ecto.Changeset.get_field(changeset, :type))
 
     {:noreply, socket}
   end

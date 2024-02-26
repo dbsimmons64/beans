@@ -333,6 +333,26 @@ defmodule BeansWeb.CoreComponents do
     """
   end
 
+  def input(%{type: "radio"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <input
+        type="radio"
+        id={@id}
+        name={@name}
+        value={@value}
+        checked={@checked}
+        class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+        {@rest}
+      />
+      <.error :for={msg <- @errors}><%= msg %></.error>
+      <label for={@id} class="text-sm font-semibold leading-6 text-zinc-800">
+        <%= @label %>
+      </label>
+    </div>
+    """
+  end
+
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>

@@ -6,7 +6,7 @@ defmodule Beans.Transactions.Transaction do
     field(:name, :string)
     field(:date, :date)
     field(:amount, :decimal)
-    field :split, :boolean
+    field :type, Ecto.Enum, values: [standard: 1, split: 2, transfer: 3], default: :standard
 
     belongs_to(:account, Beans.Accounts.Account)
     belongs_to(:category, Beans.Categories.Category)
@@ -18,8 +18,8 @@ defmodule Beans.Transactions.Transaction do
   @doc false
   def changeset(transaction, attrs) do
     transaction
-    |> cast(attrs, [:name, :date, :amount, :account_id, :category_id, :split])
-    |> validate_required([:name, :date, :amount, :account_id, :split])
+    |> cast(attrs, [:name, :date, :amount, :account_id, :category_id, :type])
+    |> validate_required([:name, :date, :amount, :account_id, :type])
     |> possibly_save_splits()
     |> cast_assoc(:splits,
       with: &Beans.Splits.Split.changeset/2,
@@ -30,12 +30,12 @@ defmodule Beans.Transactions.Transaction do
   end
 
   defp possibly_save_splits(changeset) do
-    split = fetch_field!(changeset, :split)
+    type = fetch_field!(changeset, :type)
 
-    if split == true do
-      changeset
-    else
+    if type == :split do
       Ecto.Changeset.change(changeset, %{splits: []})
+    else
+      changeset
     end
   end
 

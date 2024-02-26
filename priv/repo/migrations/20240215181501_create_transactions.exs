@@ -6,7 +6,7 @@ defmodule Beans.Repo.Migrations.CreateTransactions do
       add :name, :string
       add :date, :date
       add :amount, :decimal, precision: 20, scale: 2
-      add :split, :boolean, default: true
+      add :type, :integer
 
       add :account_id, references(:accounts)
       add :category_id, references(:categories)

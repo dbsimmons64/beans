@@ -25,8 +25,8 @@
   <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
   <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
   <:col :let={{_id, transaction}} label="Category">
-    <div :if={transaction.split == false}><%= transaction.category.name %></div>
-    <div :if={transaction.split == true}>Split</div>
+    <div :if={transaction.type != :split}><%= transaction.category.name %></div>
+    <div :if={transaction.type == :split}>Split</div>
   </:col>
   <:action :let={{_id, transaction}}>
     <div class="sr-only">
