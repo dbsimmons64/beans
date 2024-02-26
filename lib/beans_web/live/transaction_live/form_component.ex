@@ -1,6 +1,8 @@
 defmodule BeansWeb.TransactionLive.FormComponent do
+  alias Beans.Accounts.Account
   use BeansWeb, :live_component
 
+  alias Beans.Accounts
   alias Beans.Categories
   alias Beans.Transactions
 
@@ -21,9 +23,18 @@ defmodule BeansWeb.TransactionLive.FormComponent do
         phx-submit="save"
       >
         <div class="flex flex-row space-x-4 justify-between">
+          <.input
+            field={@form[:type]}
+            type="select"
+            options={[{"Standard", :standard}, {"Split", :split}, {"Transfer", :transfer}]}
+            label="Type"
+            class="mx-4"
+          />
+
           <.input field={@form[:name]} type="text" label="Name" />
           <.input field={@form[:date]} type="date" label="Date" />
           <.input field={@form[:amount]} type="number" label="Amount" step="any" />
+
           <.input
             :if={@type == :standard}
             field={@form[:category_id]}
@@ -34,30 +45,26 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           />
 
           <.input
-            field={@form[:type]}
+            :if={@type == :transfer}
+            field={@form[:foo]}
             type="select"
-            options={[{"Standard", :standard}, {"Split", :split}, {"Transfer", :transfer}]}
-            label="Category"
+            options={@accounts}
+            label="To Account"
             class="mx-4"
           />
         </div>
 
         <.input field={@form[:account_id]} type="hidden" value={@account.id} />
+
         <div :if={@type == :split}>
-          <.header>
-            Splits
-          </.header>
+          <div class="divider divider-primary">Splits</div>
           <.inputs_for :let={f_nested} field={@form[:splits]}>
-            <div class="flex space-x-4">
-              <div class="w-1/2">
-                <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
-                <.input type="text" field={f_nested[:description]} placeholder="description" />
-              </div>
+            <div class="flex space-x-4 mt-2">
+              <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
+              <.input type="text" field={f_nested[:description]} placeholder="description" />
               <.input type="number" field={f_nested[:amount]} placeholder="amount" step="any" />
 
-              <div class="w-1/2">
-                <.input field={f_nested[:category_id]} type="select" options={@categories} />
-              </div>
+              <.input field={f_nested[:category_id]} type="select" options={@categories} />
               <label>
                 <input
                   type="checkbox"
@@ -72,7 +79,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
           <input type="hidden" name="transaction[notifications_delete][]" />
 
-          <label class="block cursor-pointer">
+          <label class="block cursor-pointer mt-2">
             <input type="checkbox" name="transaction[notifications_order][]" class="hidden" />
             <.icon name="hero-plus-circle" /> add more
           </label>
@@ -93,6 +100,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
      socket
      |> assign(assigns)
      |> assign(:categories, Categories.select_categories())
+     |> assign(:accounts, Accounts.select_accounts())
      |> assign_form(changeset)
      |> assign(:type, Ecto.Changeset.get_field(changeset, :type))}
   end

@@ -1,10 +1,13 @@
-<.header>
-  <%= @account.name %>
-  <:subtitle>Balance: <%= @account.balance %></:subtitle>
-</.header>
+<div class="hero">
+  <h1 class="text-4xl font-bold"><%= @account.name %></h1>
+</div>
+<div class="stat">
+  <div class="stat-title">Balance</div>
+  <div class="stat-value"><%= @account.balance %></div>
+</div>
 
+<div class="divider divider-primary">Transactions</div>
 <.header>
-  Transactions
   <:actions>
     <.link patch={~p"/accounts/#{@account}/transactions/new"}>
       <.button>New Transaction</.button>
@@ -25,7 +28,8 @@
   <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
   <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
   <:col :let={{_id, transaction}} label="Category">
-    <div :if={transaction.type != :split}><%= transaction.category.name %></div>
+    <div :if={transaction.type == :standard}><%= transaction.category.name %></div>
+    <div :if={transaction.type == :transfer}>Transfer</div>
     <div :if={transaction.type == :split}>Split</div>
   </:col>
   <:action :let={{_id, transaction}}>

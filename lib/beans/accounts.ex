@@ -41,6 +41,14 @@ defmodule Beans.Accounts do
   end
 
   @doc """
+  Obtain a list of accounts, the returned
+  result is suitable for a html select statement
+  """
+  def select_accounts do
+    from(a in Account, select: {a.name, a.id}) |> Repo.all()
+  end
+
+  @doc """
   Creates a account.
 
   ## Examples
