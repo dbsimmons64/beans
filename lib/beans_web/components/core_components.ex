@@ -295,6 +295,7 @@ defmodule BeansWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :class, :string, default: nil, doc: "additional class attributes"
   attr :rest, :global, include: ~w(autocomplete cols disabled form max maxlength min minlength
                                    pattern placeholder readonly required rows size step)
   slot :inner_block
@@ -398,7 +399,8 @@ defmodule BeansWeb.CoreComponents do
         class={[
           "input input-md input-bordered
           phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 phx-no-feedback:focus:ring-zinc-800/5",
-          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10"
+          @errors != [] && "border-rose-400 focus:border-rose-400 focus:ring-rose-400/10",
+          @class
         ]}
         {@rest}
       />

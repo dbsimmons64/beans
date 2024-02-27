@@ -22,7 +22,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <div class="flex flex-row space-x-4 justify-between">
+        <div class="flex flex-row space-x-4 ">
           <.input
             field={@form[:type]}
             type="select"
