@@ -4,12 +4,18 @@ defmodule Beans.Transactions do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Adapter.Transaction
+  alias Ecto.Adapter.Transaction
   alias Beans.Accounts
   alias Beans.Accounts.Account
   alias Beans.Transactions.Transaction
   alias Beans.Repo
 
   alias Beans.Transactions.Transaction
+
+  def list_txn(params \\ %{}) do
+    Flop.validate_and_run(Transaction, params, for: Transaction)
+  end
 
   @doc """
   Returns the list of transactions.

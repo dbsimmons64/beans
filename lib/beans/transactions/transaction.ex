@@ -8,7 +8,10 @@ defmodule Beans.Transactions.Transaction do
   # trnsfer_in
   # transfer_out
   # split  - only payment out can have splits 
-
+  @derive {
+    Flop.Schema,
+    filterable: [:type, :category_id], sortable: [:date], default_limit: 5
+  }
   # transfer money from -> to 
   # user can only create a transfer out.
   # you cannot edit a transfer_in, only the original transfer_out 
