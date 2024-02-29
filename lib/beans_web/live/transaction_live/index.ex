@@ -44,11 +44,10 @@ defmodule BeansWeb.TransactionLive.Index do
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     transaction = Transactions.get_transaction!(id)
-    account = Accounts.get_account!(transaction.account_id)
 
-    {:ok, _} = Transactions.delete_transaction(transaction, account)
+    {:ok, _} = Transactions.delete_transaction(transaction.type, transaction)
 
-    socket = assign(socket, :account, Accounts.get_account!(account.id))
+    socket = assign(socket, :account, Accounts.get_account!(transaction.account_id))
     {:noreply, stream_delete(socket, :transactions, transaction)}
   end
 end

@@ -28,15 +28,15 @@
   <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
   <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
   <:col :let={{_id, transaction}} label="Category">
-    <div :if={transaction.type == :standard}><%= transaction.category.name %></div>
-    <div :if={transaction.type == :transfer}>Transfer</div>
+    <div :if={transaction.type == :payment_out}><%= transaction.category.name %></div>
+    <div :if={transaction.type == :transfer_out}>Transfer Out</div>
+    <div :if={transaction.type == :transfer_in}>Transfer In</div>
     <div :if={transaction.type == :split}>Split</div>
   </:col>
   <:action :let={{_id, transaction}}>
     <div class="sr-only">
       <.link navigate={~p"/accounts/#{@account}/transactions/#{transaction}"}>Show</.link>
     </div>
-    <.link patch={~p"/accounts/#{@account}/transactions/#{transaction}/edit"}>Edit</.link>
   </:action>
   <:action :let={{id, transaction}}>
     <.link

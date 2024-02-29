@@ -26,7 +26,13 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           <.input
             field={@form[:type]}
             type="select"
-            options={[{"Standard", :standard}, {"Split", :split}, {"Transfer", :transfer}]}
+            options={[
+              {"Out", :payment_out},
+              {"In", :payment_in},
+              {"Transfer Out", :transfer_out},
+              {"Transfer In", :transfer_in},
+              {"Split", :split}
+            ]}
             label="Type"
             class="mx-4"
           />
@@ -36,7 +42,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           <.input field={@form[:amount]} type="number" label="Amount" step="any" />
 
           <.input
-            :if={@type == :standard}
+            :if={@type == :payment_out}
             field={@form[:category_id]}
             type="select"
             options={@categories}
@@ -45,11 +51,20 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           />
 
           <.input
-            :if={@type == :transfer}
-            field={@form[:foo]}
+            :if={@type == :transfer_out}
+            field={@form[:to_account_id]}
             type="select"
             options={@accounts}
             label="To Account"
+            class="mx-4"
+          />
+
+          <.input
+            :if={@type == :transfer_in}
+            field={@form[:to_account_id]}
+            type="select"
+            options={@accounts}
+            label="From Account"
             class="mx-4"
           />
         </div>
@@ -107,8 +122,6 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
-    dbg(transaction_params)
-
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)
@@ -128,8 +141,8 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   defp save_transaction(socket, :edit, transaction_params) do
     case Transactions.update_transaction(
+           transaction_params["type"],
            socket.assigns.transaction,
-           socket.assigns.account,
            transaction_params
          ) do
       {:ok, transaction} ->
@@ -146,7 +159,10 @@ defmodule BeansWeb.TransactionLive.FormComponent do
   end
 
   defp save_transaction(socket, :new, transaction_params) do
-    case Transactions.create_transaction(socket.assigns.account, transaction_params) do
+    case Transactions.create_transaction(
+           transaction_params["type"],
+           transaction_params
+         ) do
       {:ok, transaction} ->
         notify_parent({:saved, transaction})
 

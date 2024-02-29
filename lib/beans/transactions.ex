@@ -4,6 +4,7 @@ defmodule Beans.Transactions do
   """
 
   import Ecto.Query, warn: false
+  alias Beans.Accounts
   alias Beans.Accounts.Account
   alias Beans.Transactions.Transaction
   alias Beans.Repo
@@ -49,17 +50,62 @@ defmodule Beans.Transactions do
   @doc """
   Create a transaction and update the associated account balance.
   """
-  def create_transaction(account, attrs) do
+  def create_transaction(type, attrs) when type in ["payment_out", "split"] do
     Beans.Helpers.transact(fn ->
       with {:ok, transaction} <- create_transaction(attrs),
-           {:ok, _account} <-
-             Beans.Accounts.update_balance(
-               account,
-               Decimal.mult(transaction.amount, Decimal.new(-1))
-             ) do
+           {:ok, _account} <- Accounts.decrease_balance(transaction) do
         {:ok, transaction}
       end
     end)
+  end
+
+  def create_transaction(type, attrs) when type in ["payment_in"] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- create_transaction(attrs),
+           {:ok, _account} <- Accounts.increase_balance(transaction) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def create_transaction(type, attrs) when type in ["transfer_out"] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- create_transaction(attrs),
+           {:ok, _account} <- Accounts.decrease_balance(transaction),
+           counter_attrs = create_counter_txn(transaction, attrs, :transfer_in),
+           {:ok, counter_txn} <- create_transaction(counter_attrs),
+           {:ok, _account} <- Accounts.increase_balance(counter_txn),
+           {:ok, transaction} <-
+             update_transaction(transaction, %{counter_txn_id: counter_txn.id}) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def create_transaction(type, attrs) when type in ["transfer_in"] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- create_transaction(attrs),
+           {:ok, _account} <- Accounts.increase_balance(transaction),
+           counter_attrs = create_counter_txn(transaction, attrs, :transfer_out),
+           {:ok, counter_txn} <- create_transaction(counter_attrs),
+           {:ok, _account} <- Accounts.decrease_balance(counter_txn),
+           {:ok, transaction} <-
+             update_transaction(transaction, %{counter_txn_id: counter_txn.id}) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def create_counter_txn(transaction, attrs, type) do
+    txn = Map.from_struct(transaction)
+
+    %{
+      txn
+      | id: nil,
+        type: type,
+        counter_txn_id: transaction.id,
+        account_id: attrs["to_account_id"]
+    }
   end
 
   @doc """
@@ -78,22 +124,7 @@ defmodule Beans.Transactions do
     %Transaction{}
     |> Transaction.changeset(attrs)
     |> Repo.insert()
-    |> Beans.Helpers.preload([:splits, :category])
-  end
-
-  def update_transaction(%Transaction{} = transaction, %Account{} = account, attrs) do
-    original_amount = transaction.amount
-    Beans.Helpers.transact(fn ->
-      with {:ok, transaction} <- update_transaction(transaction, attrs),
-           {:ok, _account} <-
-             Beans.Accounts.possibly_update_balance(
-               account,
-              original_amount,
-            transaction.amount
-             ) do
-        {:ok, transaction}
-      end
-    end)
+    |> Beans.Helpers.preload([:splits, :category, :counter_txn])
   end
 
   @doc """
@@ -115,14 +146,42 @@ defmodule Beans.Transactions do
     |> Beans.Helpers.preload(:category)
   end
 
-  def delete_transaction(%Transaction{} = transaction, %Account{} = account) do
+  def delete_transaction(type, %Transaction{} = transaction)
+      when type in [:payment_out, :split] do
     Beans.Helpers.transact(fn ->
       with {:ok, transaction} <- delete_transaction(transaction),
-           {:ok, _account} <-
-             Beans.Accounts.update_balance(
-               account,
-               transaction.amount
-             ) do
+           {:ok, _account} <- Accounts.increase_balance(transaction) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def delete_transaction(type, %Transaction{} = transaction) when type in [:payment_in] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, transaction} <- delete_transaction(transaction),
+           {:ok, _account} <- Accounts.decrease_balance(transaction) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def delete_transaction(type, %Transaction{} = transaction) when type in [:transfer_in] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, _account} <- Accounts.decrease_balance(transaction),
+           counter_txn = get_transaction!(transaction.counter_txn_id),
+           {:ok, _account} <- Accounts.increase_balance(counter_txn),
+           {:ok, transaction} <- delete_transaction(transaction) do
+        {:ok, transaction}
+      end
+    end)
+  end
+
+  def delete_transaction(type, %Transaction{} = transaction) when type in [:transfer_out] do
+    Beans.Helpers.transact(fn ->
+      with {:ok, _account} <- Accounts.increase_balance(transaction),
+           counter_txn = get_transaction!(transaction.counter_txn_id),
+           {:ok, _account} <- Accounts.decrease_balance(counter_txn),
+           {:ok, transaction} <- delete_transaction(transaction) do
         {:ok, transaction}
       end
     end)
