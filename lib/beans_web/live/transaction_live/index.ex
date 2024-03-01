@@ -12,7 +12,18 @@ defmodule BeansWeb.TransactionLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    socket = apply_action(socket, socket.assigns.live_action, params)
+
+    case Transactions.list_txn(params) do
+      {:ok, {txns, meta}} ->
+        {:noreply, assign(socket, %{txns: txns, meta: meta})}
+
+      {:error, _meta} ->
+        # This will reset invalid parameters. Alternatively, you can assign
+        # only the meta and render the errors, or you can ignore the error
+        # case entirely.
+        {:noreply, push_navigate(socket, to: ~p"/transactions")}
+    end
   end
 
   defp apply_action(socket, :edit, %{"id" => id, "account_id" => account_id}) do

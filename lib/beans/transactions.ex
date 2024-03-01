@@ -14,7 +14,9 @@ defmodule Beans.Transactions do
   alias Beans.Transactions.Transaction
 
   def list_txn(params \\ %{}) do
-    Flop.validate_and_run(Transaction, params, for: Transaction)
+    Transaction
+    |> preload(:category)
+    |> Flop.validate_and_run(params, for: Transaction)
   end
 
   @doc """

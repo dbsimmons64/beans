@@ -15,6 +15,39 @@
   </:actions>
 </.header>
 
+<Flop.Phoenix.table
+  items={@txns}
+  meta={@meta}
+  path={~p"/accounts/#{@account}/transactions"}
+  opts={[table_attrs: [class: "table"]]}
+>
+  <:col :let={txn} label="Name" field={:name}><%= txn.name %></:col>
+  <:col :let={txn} label="Date" field={:date}><%= txn.date %></:col>
+  <:col :let={txn} label="Amount" field={:amount}><%= txn.amount %></:col>
+
+  <:col :let={txn} label="Category" field={:category}>
+    <div :if={txn.type == :payment_out}><%= txn.category.name %></div>
+    <div :if={txn.type == :transfer_out}>Transfer Out</div>
+    <div :if={txn.type == :transfer_in}>Transfer In</div>
+    <div :if={txn.type == :split}>Split</div>
+  </:col>
+  <:action :let={txn}>
+    <.link navigate={~p"/accounts/#{@account}/transactions/#{txn}"}>Show</.link>
+  </:action>
+</Flop.Phoenix.table>
+
+<Flop.Phoenix.pagination
+  meta={@meta}
+  path={~p"/accounts/#{@account}/transactions"}
+  opts={[
+    wrapper_attrs: [class: "flex justify-between"],
+    pagination_list_attrs: [class: ["flex gap-4 order-2"]],
+    previous_link_attrs: [class: "order-1 hero-chevron-left-mini"],
+    next_link_attrs: [class: "order-3 hero-chevron-right-mini"],
+    page_links: {:ellipsis, 3}
+  ]}
+/>
+
 <.table
   id="transactions"
   rows={@streams.transactions}
