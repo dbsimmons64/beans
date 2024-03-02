@@ -1,9 +1,15 @@
 <div class="hero">
   <h1 class="text-4xl font-bold"><%= @account.name %></h1>
 </div>
-<div class="stat">
-  <div class="stat-title">Balance</div>
-  <div class="stat-value"><%= @account.balance %></div>
+
+<div class="flex flex-col w-full lg:flex-row">
+  <div class="stat">
+    <div class="stat-title">Balance</div>
+    <div class="stat-value"><%= @account.balance %></div>
+  </div>
+  <div>
+    <img class="mask mask-circle h-32" src={~p"/images/balance.svg"} />
+  </div>
 </div>
 
 <div class="divider divider-primary">Transactions</div>
@@ -16,51 +22,24 @@
 </.header>
 
 <Flop.Phoenix.table
-  items={@txns}
-  meta={@meta}
-  path={~p"/accounts/#{@account}/transactions"}
-  opts={[table_attrs: [class: "table"]]}
->
-  <:col :let={txn} label="Name" field={:name}><%= txn.name %></:col>
-  <:col :let={txn} label="Date" field={:date}><%= txn.date %></:col>
-  <:col :let={txn} label="Amount" field={:amount}><%= txn.amount %></:col>
-
-  <:col :let={txn} label="Category" field={:category}>
-    <div :if={txn.type == :payment_out}><%= txn.category.name %></div>
-    <div :if={txn.type == :transfer_out}>Transfer Out</div>
-    <div :if={txn.type == :transfer_in}>Transfer In</div>
-    <div :if={txn.type == :split}>Split</div>
-  </:col>
-  <:action :let={txn}>
-    <.link navigate={~p"/accounts/#{@account}/transactions/#{txn}"}>Show</.link>
-  </:action>
-</Flop.Phoenix.table>
-
-<Flop.Phoenix.pagination
+  id="transactions"
+  items={@streams.transactions}
   meta={@meta}
   path={~p"/accounts/#{@account}/transactions"}
   opts={[
-    wrapper_attrs: [class: "flex justify-between"],
-    pagination_list_attrs: [class: ["flex gap-4 order-2"]],
-    previous_link_attrs: [class: "order-1 hero-chevron-left-mini"],
-    next_link_attrs: [class: "order-3 hero-chevron-right-mini"],
-    page_links: {:ellipsis, 3}
+    table_attrs: [class: "table"],
+    tbody_tr_attrs: [class: "hover:cursor-pointer hover:bg-zinc-50"]
   ]}
-/>
-
-<.table
-  id="transactions"
-  rows={@streams.transactions}
   row_click={
     fn {_id, transaction} ->
       JS.navigate(~p"/accounts/#{@account}/transactions/#{transaction}")
     end
   }
 >
-  <:col :let={{_id, transaction}} label="Name"><%= transaction.name %></:col>
-  <:col :let={{_id, transaction}} label="Date"><%= transaction.date %></:col>
-  <:col :let={{_id, transaction}} label="Amount"><%= transaction.amount %></:col>
-  <:col :let={{_id, transaction}} label="Category">
+  <:col :let={{_id, transaction}} label="Name" field={:name}><%= transaction.name %></:col>
+  <:col :let={{_id, transaction}} label="Date" field={:date}><%= transaction.date %></:col>
+  <:col :let={{_id, transaction}} label="Amount" field={:amount}><%= transaction.amount %></:col>
+  <:col :let={{_id, transaction}} label="Category" field={:category}>
     <div :if={transaction.type == :payment_out}><%= transaction.category.name %></div>
     <div :if={transaction.type == :transfer_out}>Transfer Out</div>
     <div :if={transaction.type == :transfer_in}>Transfer In</div>
@@ -79,7 +58,21 @@
       Delete
     </.link>
   </:action>
-</.table>
+</Flop.Phoenix.table>
+
+<div class="mt-8">
+  <Flop.Phoenix.pagination
+    meta={@meta}
+    path={~p"/accounts/#{@account}/transactions"}
+    opts={[
+      wrapper_attrs: [class: "flex justify-between"],
+      pagination_list_attrs: [class: ["flex gap-4 order-2"]],
+      previous_link_attrs: [class: "order-1 btn btn-outline"],
+      next_link_attrs: [class: "order-3 btn btn-outline"],
+      page_links: {:ellipsis, 3}
+    ]}
+  />
+</div>
 
 <.back navigate={~p"/accounts"}>Back to accounts</.back>
 

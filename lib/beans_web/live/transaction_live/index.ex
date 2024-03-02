@@ -6,23 +6,20 @@ defmodule BeansWeb.TransactionLive.Index do
   alias Beans.Transactions.Transaction
 
   @impl true
-  def mount(%{"account_id" => account_id} = _params, _session, socket) do
-    {:ok, stream(socket, :transactions, Transactions.list_transactions(account_id))}
+  def mount(_params, _session, socket) do
+    {:ok, socket}
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def handle_params(%{"account_id" => account_id} = params, _url, socket) do
     socket = apply_action(socket, socket.assigns.live_action, params)
 
-    case Transactions.list_txn(params) do
-      {:ok, {txns, meta}} ->
-        {:noreply, assign(socket, %{txns: txns, meta: meta})}
-
-      {:error, _meta} ->
-        # This will reset invalid parameters. Alternatively, you can assign
-        # only the meta and render the errors, or you can ignore the error
-        # case entirely.
-        {:noreply, push_navigate(socket, to: ~p"/transactions")}
+    case Transactions.list_transactions(account_id, params) do
+      {:ok, {transactions, meta}} ->
+        {:noreply,
+         socket
+         |> assign(:meta, meta)
+         |> stream(:transactions, transactions, reset: true)}
     end
   end
 

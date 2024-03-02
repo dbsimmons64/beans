@@ -1,5 +1,4 @@
 defmodule BeansWeb.TransactionLive.FormComponent do
-  alias Beans.Accounts.Account
   use BeansWeb, :live_component
 
   alias Beans.Accounts
@@ -137,25 +136,6 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   def handle_event("save", %{"transaction" => transaction_params}, socket) do
     save_transaction(socket, socket.assigns.action, transaction_params)
-  end
-
-  defp save_transaction(socket, :edit, transaction_params) do
-    case Transactions.update_transaction(
-           transaction_params["type"],
-           socket.assigns.transaction,
-           transaction_params
-         ) do
-      {:ok, transaction} ->
-        notify_parent({:saved, transaction})
-
-        {:noreply,
-         socket
-         |> put_flash(:info, "Transaction updated successfully")
-         |> push_patch(to: socket.assigns.patch)}
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, changeset)}
-    end
   end
 
   defp save_transaction(socket, :new, transaction_params) do

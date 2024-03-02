@@ -6,18 +6,13 @@ defmodule Beans.Transactions do
   import Ecto.Query, warn: false
   alias Ecto.Adapter.Transaction
   alias Ecto.Adapter.Transaction
+  alias Ecto.Adapter.Transaction
   alias Beans.Accounts
   alias Beans.Accounts.Account
   alias Beans.Transactions.Transaction
   alias Beans.Repo
 
   alias Beans.Transactions.Transaction
-
-  def list_txn(params \\ %{}) do
-    Transaction
-    |> preload(:category)
-    |> Flop.validate_and_run(params, for: Transaction)
-  end
 
   @doc """
   Returns the list of transactions.
@@ -28,14 +23,15 @@ defmodule Beans.Transactions do
       [%Transaction{}, ...]
 
   """
-  def list_transactions(account_id) do
+  def list_transactions(account_id, params) do
     query =
       from t in Transaction,
         where: t.account_id == ^account_id,
+        order_by: t.date,
         select: t,
         preload: [:category]
 
-    Repo.all(query)
+    Flop.validate_and_run(query, params, for: Transaction)
   end
 
   @doc """

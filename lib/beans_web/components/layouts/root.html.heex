@@ -14,18 +14,27 @@
   <body class="bg-white antialiased">
     <div class="navbar bg-base-100">
       <div class="flex-1">
-        <img class="mask mask-circle h-24" src={~p"/images/beans-logo.png"} />
+        <img class="mask mask-circle h-24" src={~p"/images/beans-logo2.jpeg"} />
       </div>
       <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
           <%= if @current_user do %>
-            <li><a href="#"><%= @current_user.email %></a></li>
-            <li><a href={~p"/users/settings"}>Settings</a></li>
-
+            <li><a href={~p"/accounts"}>Accounts</a></li>
+            <li><a href={~p"/categories"}>Categories</a></li>
             <li>
-              <.link href={~p"/users/log_out"} method="delete">
-                Log out
-              </.link>
+              <details>
+                <summary>
+                  <%= @current_user.email %>
+                </summary>
+                <ul class="p-2 bg-base-100 rounded-t-none w-full">
+                  <li><a href={~p"/users/settings"}>Settings</a></li>
+                  <li>
+                    <.link href={~p"/users/log_out"} method="delete">
+                      Log out
+                    </.link>
+                  </li>
+                </ul>
+              </details>
             </li>
           <% else %>
             <li>
