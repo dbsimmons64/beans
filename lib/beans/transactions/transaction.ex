@@ -10,7 +10,7 @@ defmodule Beans.Transactions.Transaction do
   # split  - only payment out can have splits 
   @derive {
     Flop.Schema,
-    filterable: [:type, :category_id],
+    filterable: [:amount, :name, :category_id],
     sortable: [:date],
     default_limit: 5,
     max_limit: 500,

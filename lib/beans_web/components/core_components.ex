@@ -701,4 +701,39 @@ defmodule BeansWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  attr :fields, :list, required: true
+  attr :meta, Flop.Meta, required: true
+  attr :id, :string, default: nil
+  attr :on_change, :string, default: "update-filter"
+  attr :target, :string, default: nil
+
+  def filter_form(%{meta: meta} = assigns) do
+    assigns = assign(assigns, form: Phoenix.Component.to_form(meta), meta: nil)
+
+    ~H"""
+    <.simple_form
+      for={@form}
+      id={@id}
+      phx-target={@target}
+      phx-change={@on_change}
+      phx-submit={@on_change}
+    >
+      <div class="flex flex-row space-x-4 ">
+        <Flop.Phoenix.filter_fields :let={i} form={@form} fields={@fields}>
+          <.input
+            field={i.field}
+            label={i.label}
+            type={i.type}
+            phx-debounce={120}
+            class="input input-md input-bordered"
+            {i.rest}
+          />
+        </Flop.Phoenix.filter_fields>
+      </div>
+
+      <button class="button" name="reset">reset</button>
+    </.simple_form>
+    """
+  end
 end

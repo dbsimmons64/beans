@@ -21,6 +21,21 @@
   </:actions>
 </.header>
 
+<.filter_form
+  fields={[
+    name: [
+      op: :like
+    ],
+    amount: [],
+    category_id: [
+      type: "select",
+      options: @categories
+    ]
+  ]}
+  meta={@meta}
+  id="user-filter-form"
+/>
+
 <Flop.Phoenix.table
   id="transactions"
   items={@streams.transactions}

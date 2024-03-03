@@ -2,6 +2,7 @@ defmodule BeansWeb.TransactionLive.Index do
   use BeansWeb, :live_view
 
   alias Beans.Accounts
+  alias Beans.Categories
   alias Beans.Transactions
   alias Beans.Transactions.Transaction
 
@@ -18,6 +19,7 @@ defmodule BeansWeb.TransactionLive.Index do
       {:ok, {transactions, meta}} ->
         {:noreply,
          socket
+         |> assign(:categories, Categories.select_categories())
          |> assign(:meta, meta)
          |> stream(:transactions, transactions, reset: true)}
     end
@@ -46,7 +48,8 @@ defmodule BeansWeb.TransactionLive.Index do
 
   @impl true
   def handle_info({BeansWeb.TransactionLive.FormComponent, {:saved, transaction}}, socket) do
-    {:noreply, stream_insert(socket, :transactions, transaction)}
+    # {:noreply, stream_insert(socket, :transactions, transaction)}
+    {:noreply, socket}
   end
 
   @impl true
@@ -57,5 +60,13 @@ defmodule BeansWeb.TransactionLive.Index do
 
     socket = assign(socket, :account, Accounts.get_account!(transaction.account_id))
     {:noreply, stream_delete(socket, :transactions, transaction)}
+  end
+
+  @impl true
+  def handle_event("update-filter", params, socket) do
+    params = Map.delete(params, "_target")
+
+    {:noreply,
+     push_patch(socket, to: ~p"/accounts/#{socket.assigns.account}/transactions?#{params}")}
   end
 end

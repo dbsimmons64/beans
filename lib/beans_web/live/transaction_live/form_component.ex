@@ -134,7 +134,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
     {:noreply, socket}
   end
 
-  def handle_event("save", %{"transaction" => transaction_params}, socket) do
+  def handle_event("save", %{"transaction" => transaction_params} = params, socket) do
     save_transaction(socket, socket.assigns.action, transaction_params)
   end
 
