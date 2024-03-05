@@ -11,8 +11,8 @@ defmodule Beans.Transactions.Transaction do
   @derive {
     Flop.Schema,
     filterable: [:amount, :name, :category_id],
-    sortable: [:date],
-    default_limit: 5,
+    sortable: [:date, :name],
+    default_limit: 25,
     max_limit: 500,
     default_order: %{
       order_by: [:date],
@@ -64,7 +64,6 @@ defmodule Beans.Transactions.Transaction do
   end
 
   defp validate_type(:split, changeset) do
-    # possibly save split - not sure why we do this
     changeset
     |> cast_assoc(:splits,
       with: &Beans.Splits.Split.changeset/2,

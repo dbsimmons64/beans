@@ -215,6 +215,7 @@ defmodule BeansWeb.CoreComponents do
   """
   attr :for, :any, required: true, doc: "the datastructure for the form"
   attr :as, :any, default: nil, doc: "the server side parameter to collect all input under"
+  attr :class, :string, default: "space-y-8 bg-white mt-10"
 
   attr :rest, :global,
     include: ~w(autocomplete name rel action enctype method novalidate target),
@@ -226,7 +227,7 @@ defmodule BeansWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="space-y-8 bg-white mt-10">
+      <div class={@class}>
         <%= render_slot(@inner_block, f) %>
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           <%= render_slot(action, f) %>
@@ -497,7 +498,7 @@ defmodule BeansWeb.CoreComponents do
 
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="mt-11 w-[40rem] sm:w-full">
+      <table class="table table-xs">
         <thead class="text-left text-[0.8125rem] leading-6 text-zinc-500">
           <tr>
             <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
@@ -707,6 +708,7 @@ defmodule BeansWeb.CoreComponents do
   attr :id, :string, default: nil
   attr :on_change, :string, default: "update-filter"
   attr :target, :string, default: nil
+  attr :clear_url, :string, required: true
 
   def filter_form(%{meta: meta} = assigns) do
     assigns = assign(assigns, form: Phoenix.Component.to_form(meta), meta: nil)
@@ -718,6 +720,7 @@ defmodule BeansWeb.CoreComponents do
       phx-target={@target}
       phx-change={@on_change}
       phx-submit={@on_change}
+      class="bg-white"
     >
       <div class="flex flex-row space-x-4 ">
         <Flop.Phoenix.filter_fields :let={i} form={@form} fields={@fields}>
@@ -726,13 +729,14 @@ defmodule BeansWeb.CoreComponents do
             label={i.label}
             type={i.type}
             phx-debounce={120}
-            class="input input-md input-bordered"
+            class="input input-sd input-bordered"
             {i.rest}
           />
         </Flop.Phoenix.filter_fields>
+        <div>
+          <.link href={@clear_url} class="btn mt-12 ml-4 btn-accent btn-sm">Reset</.link>
+        </div>
       </div>
-
-      <button class="button" name="reset">reset</button>
     </.simple_form>
     """
   end

@@ -96,6 +96,8 @@ defmodule BeansWeb.Router do
 
       live("/categories/:id", CategoryLive.Show, :show)
       live("/categories/:id/show/edit", CategoryLive.Show, :edit)
+
+      live("/overview", OverviewLive.Index, :index)
     end
   end
 

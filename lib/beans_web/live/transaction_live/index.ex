@@ -14,12 +14,14 @@ defmodule BeansWeb.TransactionLive.Index do
   @impl true
   def handle_params(%{"account_id" => account_id} = params, _url, socket) do
     socket = apply_action(socket, socket.assigns.live_action, params)
+    categories = Categories.select_categories()
+    categories = [{"Any", nil}] ++ categories
 
     case Transactions.list_transactions(account_id, params) do
       {:ok, {transactions, meta}} ->
         {:noreply,
          socket
-         |> assign(:categories, Categories.select_categories())
+         |> assign(:categories, categories)
          |> assign(:meta, meta)
          |> stream(:transactions, transactions, reset: true)}
     end
@@ -47,7 +49,7 @@ defmodule BeansWeb.TransactionLive.Index do
   end
 
   @impl true
-  def handle_info({BeansWeb.TransactionLive.FormComponent, {:saved, transaction}}, socket) do
+  def handle_info({BeansWeb.TransactionLive.FormComponent, {:saved, _transaction}}, socket) do
     # {:noreply, stream_insert(socket, :transactions, transaction)}
     {:noreply, socket}
   end
@@ -68,5 +70,9 @@ defmodule BeansWeb.TransactionLive.Index do
 
     {:noreply,
      push_patch(socket, to: ~p"/accounts/#{socket.assigns.account}/transactions?#{params}")}
+  end
+
+  def handle_event("reset", _params, socket) do
+    {:noreply, push_patch(socket, to: ~p"/accounts/#{socket.assigns.account}/transactions")}
   end
 end

@@ -7,8 +7,10 @@ defmodule Beans.Transactions do
   alias Ecto.Adapter.Transaction
   alias Ecto.Adapter.Transaction
   alias Ecto.Adapter.Transaction
+  alias Ecto.Adapter.Transaction
+  alias Ecto.Adapter.Transaction
   alias Beans.Accounts
-  alias Beans.Accounts.Account
+  alias Beans.Categories.Category
   alias Beans.Transactions.Transaction
   alias Beans.Repo
 
@@ -27,11 +29,20 @@ defmodule Beans.Transactions do
     query =
       from t in Transaction,
         where: t.account_id == ^account_id,
-        order_by: t.date,
         select: t,
         preload: [:category]
 
     Flop.validate_and_run(query, params, for: Transaction)
+  end
+
+  def last_n_transactions(number) do
+    Repo.all(
+      from t in Transaction,
+        order_by: t.date,
+        select: t,
+        preload: [:category, :account],
+        limit: ^number
+    )
   end
 
   @doc """
@@ -205,6 +216,31 @@ defmodule Beans.Transactions do
   """
   def delete_transaction(%Transaction{} = transaction) do
     Repo.delete(transaction)
+  end
+
+  def avg_category do
+    Repo.all(
+      from(a in Transaction,
+        join: c in Category,
+        on: a.category_id == c.id,
+        group_by: [a.category_id, c.name],
+        select: {c.name, sum(a.amount)}
+      )
+    )
+  end
+
+  def daily_spend() do
+    today = Date.utc_today()
+    thirty_days_ago = Date.add(today, -30)
+
+    Repo.all(
+      from(t in Transaction,
+        select: %{x: t.date, y: sum(t.amount)},
+        where: t.date > ^thirty_days_ago,
+        where: t.date < ^today,
+        group_by: t.date
+      )
+    )
   end
 
   @doc """

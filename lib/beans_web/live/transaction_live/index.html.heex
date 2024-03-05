@@ -8,19 +8,19 @@
     <div class="stat-value"><%= @account.balance %></div>
   </div>
   <div>
-    <img class="mask mask-circle h-32" src={~p"/images/balance.svg"} />
+    <.header>
+      <:actions>
+        <.link patch={~p"/accounts/#{@account}/transactions/new"}>
+          <.button class="mt-10">New Transaction</.button>
+        </.link>
+      </:actions>
+    </.header>
   </div>
 </div>
 
-<div class="divider divider-primary">Transactions</div>
-<.header>
-  <:actions>
-    <.link patch={~p"/accounts/#{@account}/transactions/new"}>
-      <.button>New Transaction</.button>
-    </.link>
-  </:actions>
-</.header>
-
+<span phx-click={JS.toggle(to: "#user-filter-form")}>
+  <.icon name="hero-funnel" class="w-8 h-8 hover:cursor-pointer" />
+</span>
 <.filter_form
   fields={[
     name: [
@@ -34,7 +34,10 @@
   ]}
   meta={@meta}
   id="user-filter-form"
+  clear_url={~p"/accounts/#{@account}/transactions/"}
 />
+
+<div class="divider divider-primary">Transactions</div>
 
 <Flop.Phoenix.table
   id="transactions"

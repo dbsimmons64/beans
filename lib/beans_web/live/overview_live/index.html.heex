@@ -1,0 +1,56 @@
+<div class="hero">
+  <h1 class="text-4xl font-bold">Overview</h1>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+  <div class="card card-compact w-full bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Summary</h2>
+      <p>How much is in each account</p>
+    </div>
+    <div id="accounts" phx-hook="Chart" class="flex justify-center items-center">
+      <div id="accounts-chart" style="width: 500px; height: 400px;" phx-update="ignore" />
+      <div id="accounts-data" hidden><%= Jason.encode!(@option) %></div>
+    </div>
+  </div>
+
+  <div class="card-compact w-full bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Last Transactions</h2>
+      <p>The last set of transactions</p>
+      <.table id="transactions" rows={@transaction_summary}>
+        <:col :let={transaction} label="Name"><%= transaction.name %></:col>
+        <:col :let={transaction} label="Date">
+          <%= Calendar.strftime(transaction.date, "%d/%m/%y") %>
+        </:col>
+        <:col :let={transaction} label="Amount"><%= transaction.amount %></:col>
+        <:col :let={transaction} label="Account"><%= transaction.account.name %></:col>
+        <:col :let={transaction} label="Category"><%= transaction.category.name %></:col>
+      </.table>
+    </div>
+    <div class="m-4"></div>
+  </div>
+
+  <div class="card card-compact w-full bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Category</h2>
+      <p>How much have I spent for each category</p>
+    </div>
+    <div id="foo" phx-hook="Pie" class="flex justify-center items-center">
+      <div id="foo-chart" style="width: 500px; height: 400px;" phx-update="ignore" />
+      <div id="foo-series" hidden><%= Jason.encode!(@series) %></div>
+      <div id="foo-labels" hidden><%= Jason.encode!(@labels) %></div>
+    </div>
+  </div>
+
+  <div class="card card-compact w-full bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Month</h2>
+      <p>How much have I spent in the last 30 days</p>
+    </div>
+    <div id="line" phx-hook="Line" class="flex justify-center items-center">
+      <div id="line-chart" style="width: 500px; height: 400px;" phx-update="ignore" />
+      <div id="line-series" hidden><%= Jason.encode!(@transactions) %></div>
+    </div>
+  </div>
+</div>

@@ -121,6 +121,8 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
+    dbg(transaction_params)
+
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)
@@ -134,7 +136,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
     {:noreply, socket}
   end
 
-  def handle_event("save", %{"transaction" => transaction_params} = params, socket) do
+  def handle_event("save", %{"transaction" => transaction_params} = _params, socket) do
     save_transaction(socket, socket.assigns.action, transaction_params)
   end
 
