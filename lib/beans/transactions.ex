@@ -12,6 +12,7 @@ defmodule Beans.Transactions do
   alias Beans.Accounts
   alias Beans.Categories.Category
   alias Beans.Transactions.Transaction
+  alias Beans.Splits.Split
   alias Beans.Repo
 
   alias Beans.Transactions.Transaction
@@ -218,15 +219,26 @@ defmodule Beans.Transactions do
     Repo.delete(transaction)
   end
 
-  def avg_category do
+  def total_per_category() do
+    Map.merge(
+      total_per_category(Transaction),
+      total_per_category(Split),
+      fn _cateogry, transaction_total, split_total ->
+        Decimal.add(transaction_total, split_total)
+      end
+    )
+  end
+
+  def total_per_category(repo) do
     Repo.all(
-      from(a in Transaction,
+      from(a in repo,
         join: c in Category,
         on: a.category_id == c.id,
         group_by: [a.category_id, c.name],
         select: {c.name, sum(a.amount)}
       )
     )
+    |> Map.new()
   end
 
   def daily_spend() do

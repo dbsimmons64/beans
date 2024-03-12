@@ -75,10 +75,12 @@ defmodule BeansWeb.TransactionLive.FormComponent do
           <.inputs_for :let={f_nested} field={@form[:splits]}>
             <div class="flex space-x-4 mt-2">
               <input type="hidden" name="transaction[notifications_order][]" value={f_nested.index} />
+
               <.input type="text" field={f_nested[:description]} placeholder="description" />
               <.input type="number" field={f_nested[:amount]} placeholder="amount" step="any" />
 
               <.input field={f_nested[:category_id]} type="select" options={@categories} />
+
               <label>
                 <input
                   type="checkbox"
@@ -98,6 +100,7 @@ defmodule BeansWeb.TransactionLive.FormComponent do
             <.icon name="hero-plus-circle" /> add more
           </label>
         </div>
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Transaction</.button>
         </:actions>
@@ -121,8 +124,6 @@ defmodule BeansWeb.TransactionLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"transaction" => transaction_params}, socket) do
-    dbg(transaction_params)
-
     changeset =
       socket.assigns.transaction
       |> Transactions.change_transaction(transaction_params)

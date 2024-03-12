@@ -11,7 +11,7 @@ defmodule BeansWeb.OverviewLive.Index do
   @impl true
   def handle_params(_params, _url, socket) do
     accounts = Accounts.list_accounts()
-    data = Enum.map(accounts, fn acc -> %{x: acc.name, y: acc.balance} end) |> dbg()
+    data = Enum.map(accounts, fn acc -> %{x: acc.name, y: acc.balance} end)
 
     option = %{
       chart: %{
@@ -25,16 +25,16 @@ defmodule BeansWeb.OverviewLive.Index do
       ]
     }
 
-    category_avg = Transactions.avg_category()
+    total_per_category = Transactions.total_per_category()
 
     series =
-      Enum.map(category_avg, fn {_, avg} -> Decimal.mult(avg, 100) |> Decimal.to_integer() end)
-      |> dbg()
+      Enum.map(total_per_category, fn {_, avg} ->
+        Decimal.mult(avg, 100) |> Decimal.to_integer()
+      end)
 
-    labels = Enum.map(category_avg, fn {label, _} -> label end) |> dbg()
+    labels = Enum.map(total_per_category, fn {label, _} -> label end)
 
     transactions = Transactions.daily_spend()
-    dbg(length(transactions))
 
     transaction_summary = get_last_n_transactions(10)
 

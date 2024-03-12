@@ -25,16 +25,16 @@ categories =
 
 date = Date.add(Date.utc_today(), -365)
 
-Enum.map(1..700, fn i ->
-  Beans.Repo.insert(%Transaction{
-    name: "txn_#{i}",
-    date: Date.add(date, i),
-    amount: :rand.uniform(100),
-    account_id: account.id,
-    category_id: Enum.random(categories),
-    type: :payment_out
-  })
-end)
+# Enum.map(1..700, fn i ->
+#   Beans.Repo.insert(%Transaction{
+#     name: "txn_#{i}",
+#     date: Date.add(date, i),
+#     amount: :rand.uniform(100),
+#     account_id: account.id,
+#     category_id: Enum.random(categories),
+#     type: :payment_out
+#   })
+# end)
 
 Beans.Users.register_user(%{email: "dave@email.com", password: "davedavedave"})
 
