@@ -25,6 +25,7 @@ defmodule BeansWeb.OverviewLive.Index do
       ]
     }
 
+    # A dummy entry for Git
     total_per_category = Transactions.total_per_category()
 
     series =
